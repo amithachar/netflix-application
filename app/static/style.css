@@ -1,0 +1,256 @@
+/* ============================= */
+/* Global Reset */
+/* ============================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #0b0f1a;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* ============================= */
+/* Sidebar */
+/* ============================= */
+
+.sidebar {
+    width: 70px;
+    height: 100vh;
+    background: #111827;
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding-top: 30px;
+    gap: 30px;   /* 🔥 clean spacing between icons */
+}
+
+
+.sidebar:hover {
+    width: 180px;
+}
+
+.logo {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+.logo img {
+    width: 35px;
+    height: auto;
+}
+
+.menu-item svg {
+    width: 22px;
+    height: 22px;
+    stroke: white;
+    stroke-width: 1.5;
+    transition: 0.3s ease;
+}
+
+.menu-item:hover svg {
+    stroke: #e50914;
+    transform: scale(1.2);
+}
+
+.menu-item {
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+
+/* ============================= */
+/* Main Layout */
+/* ============================= */
+
+.main {
+    margin-left: 70px;
+    padding: 30px;
+    transition: 0.3s ease;
+}
+
+.sidebar:hover ~ .main {
+    margin-left: 180px;
+}
+
+/* ============================= */
+/* Hero Section */
+/* ============================= */
+
+.hero {
+    height: 500px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)),
+        url('/static/hero.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+
+.hero-content {
+    max-width: 500px;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 16px;
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
+
+.watch-btn {
+    padding: 14px 30px;
+    font-size: 16px;
+    background: linear-gradient(90deg, #1e90ff, #ff007f);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s ease;
+
+    text-decoration: none;   /* 🔥 removes underline */
+    display: inline-block;   /* makes anchor behave like button */
+}
+
+
+.watch-btn:hover {
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+
+/* ============================= */
+/* Category Rows */
+/* ============================= */
+
+.row {
+    margin-bottom: 40px;
+}
+
+.row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.row-header h2 {
+    font-size: 22px;
+}
+
+.view-all {
+    font-size: 14px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.view-all:hover {
+    opacity: 1;
+}
+
+/* ============================= */
+/* Carousel */
+/* ============================= */
+
+.carousel {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+}
+
+/* Hide scrollbar */
+.carousel::-webkit-scrollbar {
+    display: none;
+}
+.carousel {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* ============================= */
+/* Cards */
+/* ============================= */
+
+.card {
+    min-width: 200px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.card img {
+    width: 200px;
+    height: 280px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.card-title {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Hover Zoom Effect */
+.card:hover {
+    transform: scale(1.08);
+    z-index: 5;
+}
+
+/* ============================= */
+/* Responsive */
+/* ============================= */
+
+@media (max-width: 1024px) {
+    .hero {
+        height: 350px;
+        padding: 40px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .card {
+        min-width: 150px;
+    }
+
+    .card img {
+        width: 150px;
+        height: 220px;
+    }
+}

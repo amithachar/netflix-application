@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StreamVerse</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+<!-- ================= Sidebar ================= -->
+<div class="sidebar">
+    <div class="logo">
+    <img src="/static/netflix.png" alt="Logo">
+</div>
+<div class="menu-item"><i data-lucide="home"></i></div>
+<div class="menu-item"><i data-lucide="search"></i></div>
+<div class="menu-item"><i data-lucide="tv"></i></div>
+<div class="menu-item"><i data-lucide="film"></i></div>
+<div class="menu-item"><i data-lucide="settings"></i></div>
+</div>
+
+<!-- ================= Main Content ================= -->
+<div class="main">
+
+    <!-- ========== Hero Section ========== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Watch Stranger Things 5</h1>
+            <p>The world is turning upside down. Stream the new season now.</p>
+            <a href="https://www.youtube.com/watch?v=AfQ13jsLDms" target="_blank" class="watch-btn">
+    ▶ Watch Now
+</a>
+
+        </div>
+    </section>
+
+    <!-- ========== Dynamic Categories ========== -->
+    {% for category, movie_list in categories.items() %}
+    <section class="row">
+        <div class="row-header">
+            <h2>{{ category }}</h2>
+            <span class="view-all">View All</span>
+        </div>
+
+        <div class="carousel">
+            {% for movie in movie_list %}
+            <div class="card">
+                <img src="{{ movie.thumbnail }}" alt="{{ movie.title }}">
+                <div class="card-title">{{ movie.title }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+
+</div>
+
+<!-- JS -->
+<script src="/static/script.js"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
