@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: ott-app
-        image: DOCKERHUB_USERNAME/ott-app:latest
+        image: amithachar/ott-app:latest
         ports:
         - containerPort: 8000
