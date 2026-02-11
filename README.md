@@ -39,8 +39,9 @@
 
 ### It will give command like:
 
+```
 gcloud container clusters get-credentials ott-cluster --zone us-central1-a
-
+```
 ### Run that on:
 
 ### Your Jenkins VM
