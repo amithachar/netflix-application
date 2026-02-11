@@ -299,7 +299,7 @@ kubectl config current-context
 gke_project-3a9d1629-f247-457c-ae4_us-central1-a_cluster-1
 ```
 
-## 🚀 Option 1 — Scale from Command Line (Fastest)
+## 🚀 Scaling the Nodes
 
 ### Check current node pool:
 
@@ -327,27 +327,3 @@ kubectl get nodes
 ### You should see 2 nodes.
 
 
-## 🚀 Scaling the Nodes
-
-### Check current node pool:
-
-```
-kubectl get nodes
-```
-
-### Then scale:
-```
-gcloud container clusters resize cluster-1 \
-  --node-pool default-pool \
-  --num-nodes 2 \
-  --zone us-central1-a
-```
-
-### This will increase from 1 → 2 nodes.
-
-### After 1–2 minutes:
-```
-kubectl get nodes
-```
-
-###  You should see 2 nodes.
