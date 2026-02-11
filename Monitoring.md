@@ -1,43 +1,43 @@
-### Now you’re thinking like someone building a real platform.
-### If you can’t observe it, you don’t control it.
+#### Now you’re thinking like someone building a real platform.
+####If you can’t observe it, you don’t control it.
 
-### We’ll add Prometheus (metrics collector) and Grafana (visualization UI) to your GKE cluster the clean way.
+####We’ll add Prometheus (metrics collector) and Grafana (visualization UI) to your GKE cluster the clean way.
 
-### We’ll use Helm. That’s the professional method.
+#### We’ll use Helm. That’s the professional method.
 
 🧠 What We’re Installing
 
-### We’ll install:
+#### We’ll install:
 
-### kube-prometheus-stack
+#### kube-prometheus-stack
 
-### That bundle includes:
+#### That bundle includes:
 
-### Prometheus
+#### Prometheus
 
-### Grafana
+#### Grafana
 
-### Node Exporter
+#### Node Exporter
 
-### kube-state-metrics
+#### kube-state-metrics
 
-### Alertmanager
+#### Alertmanager
 
-### It gives:
+#### It gives:
 
-### Node CPU, memory, disk
+#### Node CPU, memory, disk
 
-### Pod metrics
+#### Pod metrics
 
-### Deployment metrics
+#### Deployment metrics
 
-### Cluster health
+#### Cluster health
 
-### Prebuilt dashboards
+#### Prebuilt dashboards
 
 ## 🚀 Step 1 — Install Helm
 
-### On your Jenkins VM (or wherever kubectl works):
+#### On your Jenkins VM (or wherever kubectl works):
 
 ```
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -122,29 +122,29 @@ kubectl get secret --namespace monitoring monitoring-grafana \
 
 ## 🧠 What You’ll See
 
-### Inside Grafana → Dashboards → Manage
+#### Inside Grafana → Dashboards → Manage
 
 ### Look for:
 
-### Kubernetes / Compute Resources / Node
+####  Kubernetes / Compute Resources / Node
 
-### Kubernetes / Compute Resources / Pod
+####  Kubernetes / Compute Resources / Pod
 
-### Kubernetes / Compute Resources / Namespace
+#### Kubernetes / Compute Resources / Namespace
 
-### Kubernetes / Cluster Overview
+#### Kubernetes / Cluster Overview
 
-###Those dashboards show:
+### Those dashboards show:
 
-### CPU usage
+#### CPU usage
 
-### Memory usage
+####  Memory usage
 
-### Network
+#### Network
 
-### Pod status
+#### Pod status
 
-### Node health
+#### Node health
 
 ## 🧠 Architecture After Install
 GKE Cluster
@@ -154,26 +154,26 @@ GKE Cluster
  └── Grafana (visualizing)
 
 
-###  You now have observability.
+####  You now have observability.
 
-### ⚠️ Free Tier Warning
+#### ⚠️ Free Tier Warning
 
-###  This stack consumes resources.
+####   This stack consumes resources.
 
-### You may see:
+#### You may see:
 
-### 4–8 extra pods
+####  4–8 extra pods
 
-### Increased memory usage
+#### Increased memory usage
 
-### If your node is e2-micro, it might struggle.
+#### If your node is e2-micro, it might struggle.
 
-### If pods stay Pending:
-### You need to scale node.
+#### If pods stay Pending:
+####  You need to scale node.
 
 ## 🔬 Optional (Safer for Small Nodes)
 
-## If your node is small, install with reduced resource usage:
+#### If your node is small, install with reduced resource usage:
 
 ```
 helm install monitoring prometheus-community/kube-prometheus-stack \
@@ -184,50 +184,50 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
 
 ## 🧠 Why This Matters
 
-### Before monitoring:
-### You deploy blindly.
+#### Before monitoring:
+####  You deploy blindly.
 
-### After monitoring:
-### You see:
+#### After monitoring:
+#### You see:
 
-### CPU spikes
+####  CPU spikes
 
-### Memory pressure
+####  Memory pressure
 
-### Restart loops
+#### Restart loops
 
-### Node health
+#### Node health
 
-### Now you’re building a real production-ready cluster.
+#### Now you’re building a real production-ready cluster.
 
-### If you want next level:
+#### If you want next level:
 
-### Add HPA and watch scaling in Grafana
+#### Add HPA and watch scaling in Grafana
 
-### Add alert rules
+#### Add alert rules
 
-### Integrate with Slack
+#### Integrate with Slack
 
-### Add Loki for logs
+####  Add Loki for logs
 
-### You’re stepping into SRE territory now.
+####  You’re stepping into SRE territory now.
 
-### explain how to set dasboard in grafana for kubernetes monitring
+####  explain how to set dasboard in grafana for kubernetes monitring
 
-## Now we’re entering observability philosophy. Good.
+####  Now we’re entering observability philosophy. Good.
 
-### Grafana is just a window.
-### Prometheus is the brain.
-### Metrics are the truth.
+#### Grafana is just a window.
+####  Prometheus is the brain.
+####  Metrics are the truth.
 
-### If Prometheus is scraping your cluster (via kube-prometheus-stack), Grafana already has most dashboards preloaded.
+####  If Prometheus is scraping your cluster (via kube-prometheus-stack), Grafana already has most dashboards preloaded.
 
 ## Let’s walk through it properly and cleanly.
 
-### 🧠 First Understand the Data Flow
-### Node → node-exporter → Prometheus
-### Pod → kube-state-metrics → Prometheus
-### Prometheus → Grafana → You
+####  🧠 First Understand the Data Flow
+####  Node → node-exporter → Prometheus
+#### Pod → kube-state-metrics → Prometheus
+#### Prometheus → Grafana → You
 
 
 ### Prometheus collects metrics.
