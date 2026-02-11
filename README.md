@@ -55,18 +55,19 @@ kubectl get nodes
 ## ✅ Step 3 — Build Docker Image
 
 ### Inside your project:
-
-### docker build -t yourdockerhubusername/ott-app:latest .
-
+```
+docker build -t yourdockerhubusername/ott-app:latest .
+```
 ## ✅ Step 4 — Push to Docker Hub
 
 ### Login: Docker login  
-you will a link paste that link in browser -> login to docker with code -> copy the verfication code and paste in jenkins server.
+### you will a link paste that link in browser -> login to docker with code -> copy the verfication code and paste in jenkins server.
 
 ## Push:
 
-## docker push yourdockerhubusername/ott-app:latest
-
+```
+docker push yourdockerhubusername/ott-app:latest
+```
 ## ✅ Step 5 — Create Kubernetes Deployment YAML
 
 ```
@@ -123,9 +124,11 @@ kubectl get svc
 
 ## Find node external IP:
 
-##  kubectl get nodes -o wide
+```
+kubectl get nodes -o wide
+```
 
-http://NODE_EXTERNAL_IP:30007
+### http://NODE_EXTERNAL_IP:30007
 
 
 
@@ -228,7 +231,9 @@ which kubectl
 
 Now run:
 
+```
 kubectl get nodes
+```
 
 ## 🧠 Why This Happened
 
