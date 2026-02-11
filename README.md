@@ -1,6 +1,3 @@
-<img width="1593" height="519" alt="image" src="https://github.com/user-attachments/assets/bcd56313-dd68-49fb-8af8-226698336993" /># netflix-application
-netflix-application
-
 
 ### Pipeline Architecture
 
@@ -42,9 +39,7 @@ netflix-application
 
 ### It will give command like:
 
-bash```
 gcloud container clusters get-credentials ott-cluster --zone us-central1-a
-
 
 ### Run that on:
 
@@ -54,14 +49,87 @@ gcloud container clusters get-credentials ott-cluster --zone us-central1-a
 
 ### Then test:
 
-bash```
 kubectl get nodes
 
 ## ✅ Step 3 — Build Docker Image
 
-bash```
+### Inside your project:
 
-docker build -t yourdockerhubusername/ott-app:latest .
+### docker build -t yourdockerhubusername/ott-app:latest .
+
+## ✅ Step 4 — Push to Docker Hub
+
+### Login: Docker login  
+you will a link paste that link in browser -> login to docker with code -> copy the verfication code and paste in jenkins server.
+
+## Push:
+
+## docker push yourdockerhubusername/ott-app:latest
+
+## ✅ Step 5 — Create Kubernetes Deployment YAML
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ott-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ott-app
+  template:
+    metadata:
+      labels:
+        app: ott-app
+    spec:
+      containers:
+        - name: ott-container
+          image: yourdockerhubusername/ott-app:latest
+          ports:
+            - containerPort: 5000
+```
+
+## ✅ Step 6 — Expose Using NodePort (Free Tier Safe)
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: ott-service
+spec:
+  type: NodePort
+  selector:
+    app: ott-app
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30007
+```
+
+## ✅ Step 7 — Deploy to GKE
+
+```
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+```
+kubectl get pods
+kubectl get svc
+```
+
+## ✅ Step 8 — Access App
+
+## Find node external IP:
+
+##  kubectl get nodes -o wide
+
+http://NODE_EXTERNAL_IP:30007
+
+
+
+
+
 
 
 
