@@ -1,39 +1,24 @@
-#### Now you’re thinking like someone building a real platform.
-#### If you can’t observe it, you don’t control it.
+## Grafana and Prometheus
 
 #### We’ll add Prometheus (metrics collector) and Grafana (visualization UI) to your GKE cluster the clean way.
-
 #### We’ll use Helm. That’s the professional method.
 
 🧠 What We’re Installing
 
-#### We’ll install:
-
-#### kube-prometheus-stack
-
-#### That bundle includes:
-
-#### Prometheus
-
-#### Grafana
-
-#### Node Exporter
-
-#### kube-state-metrics
-
-#### Alertmanager
-
-#### It gives:
-
-#### Node CPU, memory, disk
-
-#### Pod metrics
-
-#### Deployment metrics
-
-#### Cluster health
-
-#### Prebuilt dashboards
+### We’ll install:
+#### * kube-prometheus-stack
+#### * That bundle includes:
+#### * Prometheus
+#### * Grafana
+#### * Node Exporter
+#### * kube-state-metrics
+#### * Alertmanager
+#### * It gives:
+#### * Node CPU, memory, disk
+#### * Pod metrics
+#### * Deployment metrics
+#### * Cluster health
+#### * Prebuilt dashboards
 
 ## 🚀 Step 1 — Install Helm
 
@@ -418,5 +403,10 @@ kube_deployment_status_replicas{deployment="ott-app"}
 ### HPA metrics
 
 ### Alert rules
+
+## Grafana Dashboard
+
+<img width="1897" height="958" alt="image" src="https://github.com/user-attachments/assets/2490677c-ed0a-4a6a-88b8-5d157f10c698" />
+
 
 ### Monitoring without alerts is only half observability.
