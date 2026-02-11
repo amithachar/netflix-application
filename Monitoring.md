@@ -1,7 +1,7 @@
 #### Now you’re thinking like someone building a real platform.
-####If you can’t observe it, you don’t control it.
+#### If you can’t observe it, you don’t control it.
 
-####We’ll add Prometheus (metrics collector) and Grafana (visualization UI) to your GKE cluster the clean way.
+#### We’ll add Prometheus (metrics collector) and Grafana (visualization UI) to your GKE cluster the clean way.
 
 #### We’ll use Helm. That’s the professional method.
 
