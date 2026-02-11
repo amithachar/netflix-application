@@ -326,4 +326,12 @@ kubectl get nodes
 
 ### You should see 2 nodes.
 
+<img width="1019" height="211" alt="image" src="https://github.com/user-attachments/assets/9c63447a-e472-46a5-a771-260731d0af60" />
+
+# Website live.
+<img width="1898" height="966" alt="image" src="https://github.com/user-attachments/assets/d7fec64f-bf67-4e57-be72-1f09ea86282b" />
+
+# Grafana monitoring pods.
+
+<img width="1900" height="863" alt="image" src="https://github.com/user-attachments/assets/aa4f8d6a-c341-4280-9fea-af83631ba72b" />
 
