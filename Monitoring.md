@@ -404,6 +404,10 @@ kube_deployment_status_replicas{deployment="ott-app"}
 
 ### Alert rules
 
+```
+kubectl get svc -n monitoring
+```
+
 # How to get monitoring IP
 <img width="1123" height="150" alt="image" src="https://github.com/user-attachments/assets/8dc7db1c-cc92-4bb5-83d1-907cd59ab928" />
 
