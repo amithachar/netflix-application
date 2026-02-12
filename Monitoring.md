@@ -404,6 +404,9 @@ kube_deployment_status_replicas{deployment="ott-app"}
 
 ### Alert rules
 
+# How to get monitoring IP
+<img width="1123" height="150" alt="image" src="https://github.com/user-attachments/assets/8dc7db1c-cc92-4bb5-83d1-907cd59ab928" />
+
 ## Grafana Dashboard
 
 <img width="1897" height="958" alt="image" src="https://github.com/user-attachments/assets/2490677c-ed0a-4a6a-88b8-5d157f10c698" />
