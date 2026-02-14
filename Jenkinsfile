@@ -72,9 +72,9 @@ pipeline {
                 gcloud config set project ${GCP_PROJECT_ID}
                 gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
 
-                sed -i 's|DOCKER_IMAGE|${IMAGE_NAME}:${BUILD_NUMBER}|g' k8s/deployment.yaml
+                kubectl set image deployment/ott-app \
+                ott-app=${IMAGE_NAME}:${BUILD_NUMBER}
 
-                kubectl apply -f k8s/
                 kubectl rollout status deployment/ott-app
                 """
             }
