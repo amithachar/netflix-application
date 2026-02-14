@@ -40,6 +40,19 @@ pipeline {
                 '''
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                    sonar-scanner \
+                    -Dsonar.projectKey=keys \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://34.133.65.101:9000 \
+                    -Dsonar.login=4ede8df01d9d6598714d350035b03b24b6d3497d
+                    """
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
