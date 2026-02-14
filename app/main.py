@@ -206,7 +206,7 @@ movies = [
         "thumbnail": "/uploads/Formula 1 Drive to Survive.jpg"
     },
     {
-        "title": "Ultraman Rising: \n A Contender for Best Animated Film",
+        "title": "Ultraman Rising",
         "category": "Anime",
         "thumbnail": "/uploads/Ultraman Rising.jpg"
     },
@@ -220,6 +220,30 @@ movies = [
         "category": "Anime",
         "thumbnail": "/uploads/A Whisker Away.jpg"
     },
+            {
+        "title": "Blame!",
+        "category": "Anime",
+        "thumbnail": "/uploads/Blame!.jpg"
+    },
+    
+            {
+        "title": "Flavors of Youth",
+        "category": "Anime",
+        "thumbnail": "/uploads/Flavors of Youth.jpg"
+    },
+    
+            {
+        "title": "The Sea Beast",
+        "category": "Anime",
+        "thumbnail": "/uploads/The Sea Beast.jpg"
+    },
+    
+            {
+        "title": "New Gods: Nezha Reborn",
+        "category": "Anime",
+        "thumbnail": "/uploads/New Gods Nezha Reborn.jpg"
+    },
+    
     
 ]
 
