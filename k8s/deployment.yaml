@@ -15,5 +15,6 @@ spec:
       containers:
       - name: ott-app
         image: amithachar/ott-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
