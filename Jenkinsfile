@@ -28,7 +28,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -44,6 +44,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh """
+                trivy image --severity CRITICAL,HIGH --exit-code 1 ${IMAGE_NAME}:${BUILD_NUMBER}
+                """
             }
         }
 
