@@ -211,14 +211,14 @@ movies = [
         "thumbnail": "/uploads/Ultraman Rising.jpg"
     },
         {
-        "title": "Ultraman Rising: A Contender for Best Animated Film",
+        "title": "Spirited Away",
         "category": "Anime",
-        "thumbnail": "/uploads/Ultraman Rising.jpg"
+        "thumbnail": "/uploads/Spirited Away.jpg"
     },
         {
-        "title": "Ultraman Rising: A Contender for Best Animated Film",
+        "title": "A Whisker Away",
         "category": "Anime",
-        "thumbnail": "/uploads/Ultraman Rising.jpg"
+        "thumbnail": "/uploads/A Whisker Away.jpg"
     },
     
 ]
