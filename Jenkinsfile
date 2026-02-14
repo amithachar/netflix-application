@@ -41,11 +41,16 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            steps {
-               withSonarQubeEnv(credentialsId: 'sonar')
-                }
-            }
+             steps {
+        // This wrapper provides the SonarQube server details to the build tool
+        withSonarQubeEnv('sonar') { 
+            // Replace this with your actual build command (sh or bat)
+            sh './mvnw sonar:sonar' 
+            // OR if using Sonar Scanner directly:
+            // sh 'sonar-scanner'
         }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
