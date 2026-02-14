@@ -5,7 +5,7 @@ pipeline {
         // Docker
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
         IMAGE_NAME = "amithachar/ott-app"
-        DOCKER_BUILDKIT = "1"
+        DOCKER_BUILDKIT = "0"
 
 
         // GCP Workload Identity
