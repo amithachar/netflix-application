@@ -46,26 +46,6 @@ pipeline {
             }
         }
 
-        stage('Authenticate to GCP using OIDC') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'gcp-oidc-token', variable: 'ID_TOKEN')]) {
-
-                        writeFile file: 'id_token.txt', text: ID_TOKEN
-
-                        sh """
-                        gcloud iam workload-identity-pools create-cred-config ${PROVIDER_PATH} \
-                          --service-account=${GCP_SA_EMAIL} \
-                          --output-file=gcp-credentials.json \
-                          --credential-source-file=id_token.txt
-                        """
-
-                        sh "gcloud auth login --cred-file=\$(pwd)/gcp-credentials.json"
-                    }
-                }
-            }
-        }
-
         stage('Deploy to GKE') {
             steps {
                 sh """
