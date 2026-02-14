@@ -210,6 +210,16 @@ movies = [
         "category": "Anime",
         "thumbnail": "/uploads/Ultraman Rising.jpg"
     },
+        {
+        "title": "Ultraman Rising: A Contender for Best Animated Film",
+        "category": "Anime",
+        "thumbnail": "/uploads/Ultraman Rising.jpg"
+    },
+        {
+        "title": "Ultraman Rising: A Contender for Best Animated Film",
+        "category": "Anime",
+        "thumbnail": "/uploads/Ultraman Rising.jpg"
+    },
     
 ]
 
