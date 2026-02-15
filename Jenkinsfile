@@ -42,13 +42,13 @@ pipeline {
         }
         stage('SonarQube Analysis') {
              steps {
-               sh """
-                sonar-scanner \
+               sh '''
+               sonar-scanner \
               -Dsonar.projectKey=python \
               -Dsonar.sources=. \
               -Dsonar.host.url=http://34.133.65.101:9000 \
               -Dsonar.login=dd5bddc57125a23bd9f564589bf5cba87828f4cb
-                """
+                '''
        }
    }
  }
