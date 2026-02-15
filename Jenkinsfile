@@ -40,17 +40,18 @@ pipeline {
                 '''
             }
         }
-       // stage('SonarQube Analysis') {
-        //     steps {
-        // This wrapper provides the SonarQube server details to the build tool
-//withSonarQubeEnv('sonar') { 
-            // Replace this with your actual build command (sh or bat)
-           // sh './mvnw sonar:sonar' 
-            // OR if using Sonar Scanner directly:
-            // sh 'sonar-scanner'
- //       }
- //   }
-//}
+        stage('SonarQube Analysis') {
+             steps {
+               sh """
+                sonar-scanner \
+              -Dsonar.projectKey=python \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=http://34.133.65.101:9000 \
+              -Dsonar.login=dd5bddc57125a23bd9f564589bf5cba87828f4cb
+                """
+       }
+   }
+ }
 
         stage('Build Docker Image') {
             steps {
