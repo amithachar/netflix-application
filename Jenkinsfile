@@ -42,6 +42,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
              steps {
+               withSonarQubeEnv('SonarQube') {
                sh '''
                sonar-scanner \
               -Dsonar.projectKey=python \
@@ -51,7 +52,7 @@ pipeline {
                 '''
        }
    }
- 
+}
 
         stage('Build Docker Image') {
             steps {
