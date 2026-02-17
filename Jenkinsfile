@@ -50,6 +50,8 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
+                script {
+                def scannerHome = tool 'sonar-scanner'
                 withSonarQubeEnv('sonar') {
                     sh '''
                     set -e
@@ -61,6 +63,7 @@ pipeline {
                     '''
                 }
             }
+        }
         }
 
         stage('Build Docker Image') {
