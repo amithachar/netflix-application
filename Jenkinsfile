@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        // Replace 'sonar-scanner' with the EXACT name from Global Tool Configuration
-        sonarScanner 'sonar-scanner' 
+        // Must match EXACT name from Global Tool Configuration
+        sonarScanner 'sonar-scanner'
     }
 
     environment {
@@ -12,8 +12,7 @@ pipeline {
         IMAGE_NAME = "amithachar/ott-app"
         DOCKER_BUILDKIT = "0"
 
-
-        // GCP Workload Identity
+        // GCP
         GCP_PROJECT_ID     = "project-3a9d1629-f247-457c-ae4"
         GCP_PROJECT_NUMBER = "579466139442"
         GCP_POOL_ID        = "jenkins-pool"
@@ -37,6 +36,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
+                set -e
                 python3 -m venv venv
                 . venv/bin/activate
                 pip install --upgrade pip
@@ -45,46 +45,56 @@ pipeline {
                 '''
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
-                // withSonarQubeEnv handles the Server URL and Token credentials
-                withSonarQubeEnv('sonar') { 
-                    // Now 'sonar-scanner' should be in the PATH automatically
-                    sh 'sonar-scanner -Dsonar.projectKey=python -Dsonar.sources=.'
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                    set -e
+                    sonar-scanner \
+                      -Dsonar.projectKey=python \
+                      -Dsonar.sources=. \
+                      -Dsonar.python.version=3
+                    '''
                 }
             }
-            
         }
-    
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build --pull --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+                sh '''
+                set -e
+                docker build --pull --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                '''
             }
         }
 
         stage('Trivy Scan') {
             steps {
-                sh """
+                sh '''
+                set -e
                 trivy image --severity CRITICAL --exit-code 1 ${IMAGE_NAME}:${BUILD_NUMBER}
-                """
+                '''
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                sh """
+                sh '''
+                set -e
                 echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
                 docker push ${IMAGE_NAME}:${BUILD_NUMBER}
                 docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
                 docker push ${IMAGE_NAME}:latest
-                """
+                docker logout
+                '''
             }
         }
 
         stage('Deploy to GKE') {
             steps {
-                sh """
+                sh '''
+                set -e
                 gcloud config set project ${GCP_PROJECT_ID}
                 gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
 
@@ -92,14 +102,14 @@ pipeline {
                 ott-app=${IMAGE_NAME}:${BUILD_NUMBER}
 
                 kubectl rollout status deployment/ott-app
-                """
+                '''
             }
         }
     }
 
     post {
         always {
-            sh "rm -f gcp-credentials.json id_token.txt"
+            cleanWs()
         }
     }
 }
