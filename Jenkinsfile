@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Replace 'sonar-scanner' with the EXACT name from Global Tool Configuration
+        sonarScanner 'sonar-scanner' 
+    }
+
     environment {
         // Docker
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
@@ -41,18 +46,16 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-             steps {
-               withSonarQubeEnv('SonarQube') {
-               sh '''
-               sonar-scanner \
-              -Dsonar.projectKey=python \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=http://34.133.65.101:9000 \
-              -Dsonar.login=dd5bddc57125a23bd9f564589bf5cba87828f4cb
-                '''
-       }
-   }
-}
+            steps {
+                // withSonarQubeEnv handles the Server URL and Token credentials
+                withSonarQubeEnv('sonar') { 
+                    // Now 'sonar-scanner' should be in the PATH automatically
+                    sh 'sonar-scanner -Dsonar.projectKey=python -Dsonar.sources=.'
+                }
+            }
+            
+        }
+    
 
         stage('Build Docker Image') {
             steps {
