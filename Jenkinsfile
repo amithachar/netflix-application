@@ -7,6 +7,9 @@ pipeline {
         IMAGE_NAME = "amithachar/ott-app"
         DOCKER_BUILDKIT = "0"
 
+        // SonarQube
+        SONAR_TOKEN = credentials('sonar-token-id')
+
         // GCP
         GCP_PROJECT_ID     = "project-3a9d1629-f247-457c-ae4"
         GCP_PROJECT_NUMBER = "579466139442"
