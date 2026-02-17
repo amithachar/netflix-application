@@ -52,9 +52,10 @@ pipeline {
                     sh '''
                     set -e
                     sonar-scanner \
-                      -Dsonar.projectKey=python \
-                      -Dsonar.sources=. \
-                      -Dsonar.python.version=3
+                    -Dsonar.projectKey=sonars \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://34.133.65.101:9000 \
+                    -Dsonar.login=9c9b8c09f9f2c19bbb5b915143515cf09356082c
                     '''
                 }
             }
