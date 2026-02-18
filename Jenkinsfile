@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-     tools {
+    tools {
         sonarScanner 'sonar-scanner'
     }
 
@@ -51,18 +51,19 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                def scannerHome = tool 'sonar-scanner'
-                withSonarQubeEnv('sonar') {
-                    sh '''
-                    ${scannerHome}/bin/sonar-scanner
-                    -Dsonar.projectKey=sonars
-                    -Dsonar.sources=.
-                    -Dsonar.host.url=http://34.41.234.160:9000
-                    -Dsonar.login=${SONAR_TOKEN}
-                    '''
+                    def scannerHome = tool 'sonar-scanner'
+                    withSonarQubeEnv('sonar') {
+                        sh """
+                        set -e
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=sonars \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://34.41.234.160:9000 \
+                        -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
-        }
         }
 
         stage('Build Docker Image') {
@@ -103,9 +104,7 @@ pipeline {
                 gcloud config set project ${GCP_PROJECT_ID}
                 gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
 
-                kubectl set image deployment/ott-app \
-                ott-app=${IMAGE_NAME}:${BUILD_NUMBER}
-
+                kubectl set image deployment/ott-app ott-app=${IMAGE_NAME}:${BUILD_NUMBER}
                 kubectl rollout status deployment/ott-app
                 '''
             }
