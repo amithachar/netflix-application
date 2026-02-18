@@ -12,7 +12,7 @@ pipeline {
         DOCKER_BUILDKIT = "0"
 
         // SonarQube
-        SONAR_TOKEN = credentials('sonar-token-id')
+        SONAR_TOKEN = credentials('SonarQube')
 
         // GCP
         GCP_PROJECT_ID     = "project-3a9d1629-f247-457c-ae4"
