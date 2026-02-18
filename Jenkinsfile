@@ -1,10 +1,10 @@
 pipeline {
     agent any
 
-/*     tools {
+    tools {
          sonarScanner 'sonar-scanner'
     }
- */
+
     environment {
         // Docker
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
@@ -48,22 +48,21 @@ pipeline {
             }
         }
 
-/*             stage('SonarQube Analysis') {
+            stage('SonarQube Analysis') {
                 steps {
                     script {
                         withSonarQubeEnv('sonar') {
                             sh """
-                            def scannerHome = tool 'sonar-scanner'
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=sonars \
+                            sonar-scanner \
+                            -Dsonar.projectKey=sonarsss \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://34.41.234.160:9000 \
-                            -Dsonar.login=${SONAR_TOKEN}
+                            -Dsonar.login=119327588824047c75ce4cc1c0f94b6a4b720497
                             """
                         }
                     }
                 }
-            } */
+            }
 
         stage('Build Docker Image') {
             steps {
