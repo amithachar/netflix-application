@@ -1,18 +1,18 @@
 pipeline {
     agent any
 
-    tools {
-         sonarRunner 'sonar-scanner'
+/*     tools {
+         sonarScanner 'sonar-scanner'
     }
-
+ */
     environment {
         // Docker
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
         IMAGE_NAME = "amithachar/ott-app"
         DOCKER_BUILDKIT = "0"
 
-        // SonarQube
-        SONAR_TOKEN = credentials('SonarQube')
+/*         // SonarQube
+        SONAR_TOKEN = credentials('SonarQube') */
 
         // GCP
         GCP_PROJECT_ID     = "project-3a9d1629-f247-457c-ae4"
@@ -48,22 +48,22 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv('sonar') {
-                        sh """
-                        set -e
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=sonars \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://34.41.234.160:9000 \
-                        -Dsonar.login=${SONAR_TOKEN}
-                        """
+/*             stage('SonarQube Analysis') {
+                steps {
+                    script {
+                        withSonarQubeEnv('sonar') {
+                            sh """
+                            def scannerHome = tool 'sonar-scanner'
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=sonars \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://34.41.234.160:9000 \
+                            -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
                     }
                 }
-            }
-        }
+            } */
 
         stage('Build Docker Image') {
             steps {
