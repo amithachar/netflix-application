@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-         sonarScanner 'sonar-scanner'
-    }
-
     environment {
         // Docker
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
