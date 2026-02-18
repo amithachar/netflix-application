@@ -9,46 +9,46 @@
 
 ### GCP Console → Kubernetes Engine → Create Cluster
 
-### Choose:
+#### Choose:
 
-### Standard cluster (not Autopilot for now)
+#### Standard cluster (not Autopilot for now)
 
-### Important settings:
+#### Important settings:
 
-### Location type: Zonal
+#### Location type: Zonal
 
-### Zone: us-central1-a (or whichever works)
+#### Zone: us-central1-a (or whichever works)
 
-### Node count: 1
+#### Node count: 1
 
-### Machine type: e2-micro
+#### Machine type: e2-micro
 
-### Disk type: Standard persistent disk
+#### Disk type: Standard persistent disk
 
-### Disk size: 10GB
+#### Disk size: 10GB
 
-### Disable autoscaling
+#### Disable autoscaling
 
-### No extra node pools
+#### No extra node pools
 
 ## ✅ Step 2 — Connect to Cluster
 
-### In GCP Console, click:
+#### In GCP Console, click:
 
-### “Connect”
+#### “Connect”
 
-### It will give command like:
+#### It will give command like:
 
 ```
 gcloud container clusters get-credentials ott-cluster --zone us-central1-a
 ```
-### Run that on:
+#### Run that on:
 
-### Your Jenkins VM
+#### Your Jenkins VM
 
-### OR your local machine
+#### OR your local machine
 
-### Then test:
+#### Then test:
 
 kubectl get nodes
 
@@ -334,4 +334,13 @@ kubectl get nodes
 # Grafana monitoring pods.
 
 <img width="1900" height="863" alt="image" src="https://github.com/user-attachments/assets/aa4f8d6a-c341-4280-9fea-af83631ba72b" />
+
+# Run this commad in VM for sonarqube for python sometimes installing tool in jenkins won't work properly.
+
+```
+wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+unzip sonar-scanner-cli-*.zip
+mv sonar-scanner-* /opt/sonar-scanner
+ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/bin/sonar-scanner
+```
 
