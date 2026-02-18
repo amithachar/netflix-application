@@ -48,7 +48,15 @@ pipeline {
             }
         }
 
-            stage('SonarQube Analysis') {
+        stage('Debug Sonar Tool') {
+                steps {
+                    sh 'echo $PATH'
+                    sh 'which sonar-scanner'
+                    sh 'sonar-scanner --version'
+                }
+            }
+
+        stage('SonarQube Analysis') {
                 steps {
                     script {
                         withSonarQubeEnv('sonar') {
