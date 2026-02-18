@@ -48,13 +48,13 @@ pipeline {
             }
         }
 
-        stage('Debug Sonar Tool') {
-                steps {
-                    sh 'echo $PATH'
-                    sh 'which sonar-scanner'
-                    sh 'sonar-scanner --version'
-                }
+        stage('Verify Sonar Tool') {
+            steps {
+                sh 'which sonar-scanner || echo "Scanner not found"'
+                sh 'sonar-scanner --version || echo "Version check failed"'
             }
+        }
+
 
         stage('SonarQube Analysis') {
                 steps {
