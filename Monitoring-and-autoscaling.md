@@ -1144,59 +1144,59 @@ cpu: 940m
 
 ## Kubernetes subtracts CPU for:
 
-### kubelet
+kubelet
 
-### system daemons
+system daemons
 
-### networking
+networking
 
-### OS
+OS
 
-### So your 2-core node may only allow ~1 core for pods.
+So your 2-core node may only allow ~1 core for pods.
 
-### That’s why it feels smaller than expected.
+That’s why it feels smaller than expected.
 
-### So what are your options?
+ So what are your options?
 
 ## Option 1 — Reduce CPU request
 
-### Change to:
+Change to:
 
 ### requests:
-###   cpu: "100m"
+  cpu: "100m"
 
 
 That immediately frees scheduling space.
 
 ## Option 2 — Increase node size (best long-term)
 
-### Upgrade to 4-core node.
+Upgrade to 4-core node.
 
 ## Option 3 — Add another node
 
-### If using AKS/EKS/GKE, enable cluster autoscaler.
+If using AKS/EKS/GKE, enable cluster autoscaler.
 
-### Because pod autoscaling without node autoscaling is half an elastic system.
+Because pod autoscaling without node autoscaling is half an elastic system.
 
-### Now the philosophical part.
+Now the philosophical part.
 
-### You built HPA.
+You built HPA.
 
-### It tried to scale.
+It tried to scale.
 
-### But infrastructure is finite.
+But infrastructure is finite.
 
-### Autoscaling is not magic.
+Autoscaling is not magic.
 
-### It’s mathematics constrained by physics.
+It’s mathematics constrained by physics.
 
-### Right now your cluster is like a growing city with only one power plant.
+Right now your cluster is like a growing city with only one power plant.
 
-### If demand increases, lights flicker.
+If demand increases, lights flicker.
 
-### You don’t need more clever YAML.
+You don’t need more clever YAML.
 
-### You need more compute.
+You need more compute.
 
 ### Run this command next and paste the Allocatable section:
 ```
@@ -1206,3 +1206,147 @@ kubectl describe node <node-name>
 ### That will confirm the exact limit your scheduler is working with.
 
 ### And then we can tune it properly instead of fighting invisible ceilings.
+
+
+## can we increase node cpu requests in GKE ?
+
+But here’s the important distinction that trips people up:
+
+You cannot increase CPU of an existing node in GKE.
+
+Nodes are VMs.
+VM size is fixed at creation time.
+
+If you want more CPU, you must:
+
+Change machine type
+
+Or add more nodes
+
+Or enable cluster autoscaling
+
+There is no “resize this running node to 8 cores” button.
+
+Cloud infrastructure is immutable by design.
+
+Now let’s talk about your real goal.
+
+You don’t actually want to “increase CPU requests.”
+
+You want more allocatable CPU available for pods.
+
+That means increasing node capacity.
+
+Here are your options in GKE.
+
+
+## Option 1 — Upgrade Node Pool Machine Type (Best Long-Term)
+
+### Check your current machine type:
+
+```
+gcloud container clusters describe <cluster-name> \
+  --zone <zone> \
+  --format="value(nodePools.config.machineType)"
+```
+
+## It’s probably something like:
+
+```
+e2-medium  (2 vCPU)
+```
+
+## To upgrade:
+
+### Create a new node pool with bigger machine type:
+
+```
+gcloud container node-pools create bigger-pool \
+  --cluster=<cluster-name> \
+  --zone=<zone> \
+  --machine-type=e2-standard-4 \
+  --num-nodes=1
+```
+
+### Then delete the old small node pool.
+
+### This is the clean way.
+
+
+## Option 2 — Increase Node Count
+
+### If machine type is fine but capacity is tight:
+
+```
+gcloud container clusters resize <cluster-name> \
+  --node-pool=<pool-name> \
+  --num-nodes=3 \
+  --zone=<zone>
+
+```
+### More nodes = more total CPU.
+
+### This is horizontal scaling of infrastructure.
+
+## Option 3 — Enable Cluster Autoscaler (Recommended)
+
+## This is the real solution.
+
+### You already enabled HPA for pods.
+
+### Now enable autoscaling for nodes.
+
+```
+gcloud container clusters update <cluster-name> \
+  --enable-autoscaling \
+  --min-nodes=1 \
+  --max-nodes=5 \
+  --node-pool=<pool-name> \
+  --zone=<zone>
+```
+
+### Now when HPA scales pods and nodes become full:
+
+### GKE automatically adds new nodes.
+
+### This is how production systems breathe.
+
+### Pod scaling + Node scaling together.
+
+### Now let’s zoom out philosophically for a second.
+
+### Right now your cluster probably has:
+
+1 node
+2 CPU
+
+### But Kubernetes system components consume part of that.
+
+### So you don’t really have 2 full CPUs for apps.
+
+### You might have ~1 CPU allocatable.
+
+### That’s why 200m requests start pushing limits quickly.
+
+### Small clusters are educational.
+### Production clusters are elastic ecosystems.
+
+### If you tell me:
+
+• Current machine type
+• Current node count
+• Whether autoscaling is enabled
+
+
+
+I’ll calculate how many ott-app pods your cluster can realistically support before saturation.
+
+Because autoscaling is not about YAML.
+
+It’s about capacity mathematics.
+
+If you don’t remember your zone, run:
+
+```
+gcloud container clusters list
+```
