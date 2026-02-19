@@ -417,3 +417,54 @@ kubectl get svc -n monitoring
 
 
 ### Monitoring without alerts is only half observability.
+
+
+# LOAD TESTING FOR KUBERNETES
+
+## 1. Updated GPG Key Command
+
+```
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://apt.grafana.com/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/grafana.gpg
+````
+## 2. Verify and Add the Repository
+
+```
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+```
+
+## 3. Update and Install
+
+```
+sudo apt-get update
+sudo apt-get install k6
+```
+
+## Alternative: Use Snap (Quickest Fix)
+
+```
+sudo snap install k6
+```
+## Simple stress test:
+```
+import http from 'k6/http';
+import { sleep } from 'k6';
+
+export const options = {
+  vus: 200,        // virtual users
+  duration: '2m',
+};
+
+export default function () {
+  http.get('http://your-external-ip');
+  sleep(1);
+}
+```
+
+## Run:
+
+```
+k6 run script.js
+```
+
+### Now you’re sending 200 concurrent users continuously.
