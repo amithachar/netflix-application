@@ -468,3 +468,300 @@ k6 run script.js
 ```
 
 ### Now you’re sending 200 concurrent users continuously.
+
+
+## Here is your production-ready deployment YAML with resource definitions added:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ott-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ott-app
+  template:
+    metadata:
+      labels:
+        app: ott-app
+    spec:
+      containers:
+      - name: ott-app
+        image: amithachar/ott-app:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+```
+
+## Apply it
+
+```
+kubectl apply -f deployment.yaml
+
+```
+
+## Now Kubernetes understands how “big” your pod is supposed to be.
+
+## Next, create the HPA.
+
+### Create a new file hpa.yaml:
+
+```
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ott-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ott-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+```
+
+## Apply:
+
+```
+kubectl apply -f hpa.yaml
+```
+## Now Check 
+
+```
+kubectl get hpa
+```
+
+## And watch during load:
+
+```
+kubectl get hpa -w
+```
+
+## Here’s the science of what will happen:
+
+### If CPU average across pods > 60%,
+### Kubernetes increases replicas.
+
+### If CPU drops below threshold,
+### It scales down.
+
+### But remember something important.
+
+## HPA reacts to CPU usage relative to requests, not limits.
+
+### So with:
+```
+request: 200m
+```
+### If pod uses 120m CPU → that’s 60% utilization.
+
+### That’s when scaling triggers.
+
+# 🔬 The Science of Scaling (HPA Logic)
+
+Understanding how the Horizontal Pod Autoscaler (HPA) makes decisions is the difference between a basic deployment and true Site Reliability Engineering.
+
+### How the Trigger Works
+The HPA doesn't just look at "load"; it follows a specific mathematical threshold based on the resources we defined.
+
+* **If CPU average across pods > 60%:** Kubernetes increases replicas (up to 10).
+* **If CPU drops below the threshold:** Kubernetes gradually scales down (minimum 2).
+
+### ⚠️ The SRE Golden Rule
+A common mistake is assuming HPA looks at the **Limit**. It does not. 
+**HPA reacts to CPU usage relative to REQUESTS.**
+
+
+
+#### The Math for our `ott-app`:
+Given our `deployment.yaml` configuration:
+* **CPU Request:** `200m`
+* **Target Utilization:** `60%`
+* **Scaling Threshold:** $200m \times 0.60 = 120m$
+
+> **Practical Insight:** If your pod uses **120m** of CPU, scaling triggers. If your app is lightweight and CPU never crosses that 60% mark, the HPA will never scale—even if the app feels slow.
+
+---
+
+### 🔍 Beyond CPU: The SRE Investigation
+If your application is struggling under load but the HPA is not scaling, the bottleneck is likely not CPU-bound. As an SRE, this is where the "fun" starts. You must investigate:
+
+1. **Database:** Are we hitting connection pool limits?
+2. **Network:** Is there high latency or bandwidth throttling?
+3. **Thread Pool:** Is the application server bottlenecked on concurrent threads?
+4. **External APIs:** Are slow downstream dependencies holding up the request?
+
+**Remember:** Autoscaling is easy. Understanding why it *didn't* trigger is where real engineering begins.
+
+
+## 🧠 SRE Insight: The "Subtle" Power of HPA
+
+A common misconception in Kubernetes is that HPA is a "magic button" for all performance issues. Here is the reality:
+
+> **If your app is lightweight and CPU usage never crosses 60%, the HPA will never scale.**
+
+If your application is struggling but the pod count remains static, it doesn't mean your autoscaling is broken. It means your bottleneck is likely **not CPU-bound**. You may be facing issues with:
+
+* 🗄️ **Database:** Connection pool exhaustion or slow queries.
+* 🌐 **Network:** Bandwidth throttling or high latency.
+* 🧵 **Thread Pool:** Application-level concurrency limits.
+* 🔌 **External APIs:** Slow downstream dependencies.
+
+**Crucial Rule:** CPU-based scaling only solves **CPU-bound** workloads.
+
+---
+
+## 🧪 The Elasticity Experiment
+
+After enabling HPA, run this test to verify your configuration:
+
+1.  **Start a Load Test:** Use a tool like `hey`, `ab`, or `locust`.
+2.  **Monitor HPA:** ```bash
+    kubectl get hpa -w
+    ```
+3.  **Watch Pods:** ```bash
+    kubectl get pods -w
+    ```
+
+### Results
+* **If pods increase:** Congratulations, you have successfully built **elasticity**.
+* **If pods don't increase:** It’s time to debug deeper into the application stack.
+
+This is where real **Site Reliability Engineering** begins. Autoscaling is the easy part—understanding why it *didn't* trigger is where the real fun starts.
+
+### That block:
+
+```
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+```
+
+### is Kubernetes saying:
+
+### “Here is what this container needs…
+### and here is the maximum it’s allowed to consume.”
+
+### Let’s break it down calmly and precisely.
+
+## 🔹 Requests = Guaranteed Minimum
+```
+requests:
+  cpu: 200m
+  memory: 256Mi
+```
+
+### This tells Kubernetes scheduler:
+
+### “When placing this pod on a node, ensure the node has at least this much free.”
+
+### So:
+
+### 200m CPU is reserved
+
+### 256Mi memory is reserved
+
+### The scheduler uses this to decide which node the pod can run on.
+
+### No request → Kubernetes might overpack nodes blindly.
+
+## 🔹 Limits = Hard Ceiling
+
+```
+limits:
+  cpu: 500m
+  memory: 512Mi
+```
+
+# ⚙️ Kubernetes Resource Management: The Deep Dive
+
+Managing resources for the `ott-app` involves balancing performance and stability. Here is the technical breakdown of how we define "boundaries" for our containers.
+
+---
+
+## 🛑 Requests vs. Limits: The "Harsh but Fair" Rules
+
+In our configuration, we have set strict boundaries:
+* **CPU Limit:** 500m
+* **Memory Limit:** 512Mi
+
+| Resource | Action when limit is hit | Result |
+| :--- | :--- | :--- |
+| **CPU** | Throttling | The application **slows down**. |
+| **Memory** | OOMKilled | The container is **terminated**. |
+
+> **SRE Insight:** CPU limits cause a "slowdown," while Memory limits cause a "kill." Distributed systems are polite only when you enforce these boundaries.
+
+---
+
+## 📏 Understanding Units (m and Mi)
+
+### What is “m” in CPU?
+CPU is measured in **millicores**.
+* **1000m** = 1 Full CPU Core
+* **200m** = 0.2 CPU Core (Our Request)
+* **500m** = 0.5 CPU Core (Our Limit)
+
+*If your worker node has 4 cores, the total capacity is **4000m**.*
+
+### What is “Mi” in Memory?
+Kubernetes uses binary units (base-2) rather than decimal units (base-10).
+* **Mi (Mebibyte)** = $1024^2$ bytes.
+* **256Mi** ≈ 268 Megabytes (MB).
+* **512Mi** ≈ 536 Megabytes (MB).
+
+---
+
+## ⚖️ Why This Matters for Autoscaling
+
+The Horizontal Pod Autoscaler (HPA) uses the **Request** value as the denominator for its math.
+
+$$Utilization = \frac{\text{Actual CPU Usage}}{\text{Requested CPU}}$$
+
+**Example Scenario:**
+* **Request:** 200m
+* **Current Usage:** 120m
+* **Calculation:** $120 / 200 = 60\%$
+
+If your HPA target is **60%**, scaling triggers now. Without specific requests, the autoscaler has no baseline to calculate percentages.
+
+---
+
+## 🍽️ The Restaurant Analogy
+* **Requests:** The chair you reserve in a restaurant. You are guaranteed this seat.
+* **Limits:** The maximum amount of food you are allowed to eat. If you try to eat more, security (Kubernetes) intervenes.
+
+---
+
+## 🛠️ Engineering Trade-offs
+
+Resource tuning is a balancing act. If you:
+* **Set request too high:** You waste money; fewer pods fit on the node.
+* **Set request too low:** The autoscaler triggers too easily (false positives).
+* **Set limit too low:** The app throttles and performance degrades.
+* **Set limit too high:** One "greedy" pod can starve others and take down the entire node.
+
+> **Warning:** If you remove limits entirely, a single pod under load might work beautifully—until the day it consumes the whole node's resources and causes a cluster-wide failure.
+
+---
+
+Would you like me to help you **calculate the optimal CPU requests** for your `ott-app` based on your current production load numbers?
