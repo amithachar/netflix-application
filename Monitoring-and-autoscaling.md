@@ -765,3 +765,317 @@ Resource tuning is a balancing act. If you:
 ---
 
 Would you like me to help you **calculate the optimal CPU requests** for your `ott-app` based on your current production load numbers?
+
+
+## Troubleshooting
+
+### One pod is pending.
+
+<img width="981" height="108" alt="image" src="https://github.com/user-attachments/assets/9c9072c1-f803-4549-af85-3d5518564e23" />
+
+### Now we’re in the interesting part of Kubernetes behavior.
+
+## Pending does not mean “crashed.”
+
+### It means:
+
+### “Kubernetes wants to run this pod… but cannot find a place for it.”
+
+### The scheduler is basically saying:
+
+### “I don’t have enough room.”
+
+### Since you just added:
+```
+requests:
+  cpu: 200m
+  memory: 256Mi
+```
+
+### This is almost certainly a resource scheduling issue.
+
+### Let’s diagnose properly instead of guessing.
+
+### Step 1 — Describe the Pod (This Reveals Truth)
+
+### Run:
+```
+kubectl describe pod ott-app-5c465f9597-q7grj
+```
+
+### Look at the bottom under Events.
+
+### You will probably see something like:
+```
+0/1 nodes are available: insufficient cpu
+```
+
+### or
+```
+0/1 nodes are available: insufficient memory
+```
+
+### That message is the real answer.
+
+### Why This Happens
+
+### Before adding requests, Kubernetes didn’t reserve resources.
+
+### Now it must guarantee:
+```
+200m CPU
+
+256Mi memory
+```
+### If your node does not have enough free allocatable resources,
+### scheduler refuses to place the pod.
+
+### That’s discipline.
+
+### Step 2 — Check Node Capacity
+
+### Run:
+```
+kubectl describe node <node-name>
+```
+
+### Scroll to:
+
+### Allocated resources:
+
+
+### You’ll see something like:
+```
+CPU Requests  1800m / 2000m
+Memory Requests  1800Mi / 2048Mi
+```
+
+### If it’s near full, that’s why pod is pending.
+
+### Very Common Scenario
+
+### Single-node cluster
+### 2 pods already running
+### Each requesting 200m CPU
+
+### If node has only 500m or 1 CPU, and other system pods are consuming CPU,
+### there may not be enough room for a new replica.
+
+### specially if HPA tried to scale up.
+
+### Possible Causes
+
+### 1️⃣ Node too small
+### 2️⃣ Too many pods already
+### 3️⃣ HPA scaling beyond node capacity
+### 4️⃣ Taints preventing scheduling
+### 5️⃣ No metrics-server (less common for pending)
+
+### But 90% of the time it’s insufficient CPU or memory.
+
+## Quick Fix Options
+
+## Option A — Reduce Requests
+
+### Change to:
+```
+requests:
+  cpu: "100m"
+  memory: "128Mi"
+```
+
+### Then apply again.
+
+## Option B — Increase Node Size
+
+### If on cloud:
+
+### Scale node pool.
+
+## Option C — Add Another Node
+
+### If cluster supports multiple nodes.
+
+## Important Insight
+
+### This is actually good news.
+
+### Your cluster is respecting resource guarantees.
+
+### Without requests, Kubernetes would pack pods recklessly.
+
+### Now it’s behaving like a responsible scheduler.
+
+## Deep SRE Lesson
+
+### When a pod is Pending:
+
+### It’s not broken.
+
+### It’s unscheduled.
+
+### The scheduler is telling you your cluster capacity planning is insufficient.
+
+### That’s not a failure of Kubernetes.
+
+### hat’s math.
+
+### Run this now:
+```
+kubectl describe pod ott-app-5c465f9597-q7grj
+```
+
+### and paste the Events section if you want exact diagnosis.
+
+### Distributed systems don’t hide errors.
+
+### They whisper them in kubectl describe.
+
+<img width="929" height="250" alt="image" src="https://github.com/user-attachments/assets/555960d3-47d6-4509-bbbf-ac0ade6cf5b1" />
+
+
+### Beautiful. This output tells a story.
+
+### Let’s decode it calmly.
+
+## You showed:
+
+## Allocated resources:
+```
+CPU Requests:    748m (79%)
+CPU Limits:     6043m (642%)
+
+Memory Requests: 1084361600 (36%)
+Memory Limits:  7448967680 (253%)
+```
+
+### Now here’s the key.
+
+### ubernetes schedules pods based on requests, not limits.
+
+## Your node has:
+
+### ~1000m CPU total (because 748m = 79%)
+
+### That means your node is roughly a 1-core node.
+
+### Now think.
+
+### If HPA tries to scale and add another pod requesting:
+
+### cpu: 200m
+
+
+### But only ~252m CPU is free (1000m - 748m),
+
+### And system pods are also consuming some,
+
+### The scheduler may not find enough clean allocatable CPU.
+
+## Result?
+
+### Pending.
+
+### Now look at the wild part:
+
+### CPU Limits: 6043m (642%)
+
+
+### This means you have massively overcommitted CPU limits.
+
+### That’s allowed.
+
+### Limits can exceed 100%.
+
+### equests cannot.
+
+### Scheduling only cares about requests.
+
+### So what’s happening?
+
+### You likely:
+
+ ###    • Have a small single node
+ ###    • HPA increased replicas
+ ###    • New pod requires 200m
+ ###   • Node doesn’t have guaranteed space
+
+### Scheduler refuses.
+
+### Let’s verify capacity precisely.
+
+### Run:
+```
+kubectl describe node <node-name> | grep -A5 Capacity
+```
+
+### You’ll likely see something like:
+```
+cpu: 1
+memory: 2Gi
+```
+
+### If it’s a 1 CPU node, you’re already near ceiling.
+
+### Now here’s the deeper lesson.
+
+### Autoscaling pods does nothing if nodes cannot scale.
+
+### You need:
+
+### Pod autoscaling + Node autoscaling.
+
+### If you’re on cloud (AKS, EKS, GKE), enable Cluster Autoscaler.
+
+### Otherwise:
+
+### More pods = Pending.
+
+### Quick Solutions:
+
+## Option 1 — Reduce CPU request
+
+### Change from:
+
+    ### cpu: 200m
+    
+    
+    ### to
+    
+    ### cpu: 100m
+    
+    
+    ### That doubles pod density.
+
+## Option 2 — Increase node size
+
+    ### Upgrade VM from 1 core → 2 core.
+
+## Option 3 — Add another node
+
+    ### Multi-node cluster.
+    
+    ### Now the strategic truth.
+    
+    ### You tried to make your system elastic.
+    
+    ### But elasticity requires room to expand.
+    
+    ### Right now your cluster is like a rubber band nailed to a wall.
+
+## HPA says:
+### “Scale up!”
+
+### Scheduler says:
+### “With what resources?”
+
+### And the pod sits in Pending.
+
+### If you tell me:
+
+    ### • Is this AKS?
+    ### • How many nodes?
+    ### • Node size?
+
+### I’ll tell you the exact scaling math for your setup so your cluster behaves like a living organism instead of a cramped box.
+
