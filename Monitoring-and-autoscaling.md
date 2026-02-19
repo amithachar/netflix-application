@@ -1037,31 +1037,31 @@ memory: 2Gi
 
 ### Change from:
 
-    ### cpu: 200m
-    
-    
-    ### to
-    
-    ### cpu: 100m
-    
-    
-    ### That doubles pod density.
+### cpu: 200m
+
+
+### to
+
+### cpu: 100m
+
+
+### That doubles pod density.
 
 ## Option 2 — Increase node size
 
-    ### Upgrade VM from 1 core → 2 core.
+### Upgrade VM from 1 core → 2 core.
 
 ## Option 3 — Add another node
 
-    ### Multi-node cluster.
-    
-    ### Now the strategic truth.
-    
-    ### You tried to make your system elastic.
-    
-    ### But elasticity requires room to expand.
-    
-    ### Right now your cluster is like a rubber band nailed to a wall.
+### Multi-node cluster.
+
+### Now the strategic truth.
+
+### You tried to make your system elastic.
+
+### But elasticity requires room to expand.
+
+### Right now your cluster is like a rubber band nailed to a wall.
 
 ## HPA says:
 ### “Scale up!”
@@ -1073,9 +1073,136 @@ memory: 2Gi
 
 ### If you tell me:
 
-    ### • Is this AKS?
-    ### • How many nodes?
-    ### • Node size?
+### • Is this AKS?
+### • How many nodes?
+### • Node size?
 
 ### I’ll tell you the exact scaling math for your setup so your cluster behaves like a living organism instead of a cramped box.
 
+<img width="620" height="224" alt="image" src="https://github.com/user-attachments/assets/0f82a662-389a-4be4-8c3d-3fb96592aad3" />
+
+
+## Now we have real numbers. Good.
+
+### Your node capacity:
+
+```
+CPU: 2 cores
+Memory: ~4 Gi
+```
+### So total CPU = 2000m.
+
+### Earlier we saw:
+
+### CPU Requests: 748m (79%)
+
+### That percentage confused you because it was relative to allocatable, not full capacity. Kubernetes keeps some CPU reserved for system components.
+
+### Now let’s think clearly.
+
+### If allocatable CPU is around ~950m–1000m (common in small clusters after system reservation), and 748m is already requested, then you only have ~200–250m free.
+
+## Your new pod requests:
+
+### cpu: 200m
+
+
+### That’s cutting it extremely close.
+
+### And scheduler needs clean, guaranteed space.
+
+### If even 1m is missing → Pending.
+
+### Kubernetes does not negotiate.
+
+### Let’s confirm allocatable CPU.
+
+## Run:
+```
+kubectl describe node <node-name> | grep -A5 Allocatable
+```
+
+### You’ll likely see something like:
+```
+cpu: 940m
+```
+
+### That’s your real usable CPU.
+
+### Now the math makes sense:
+
+### 748m already used
+
+### 200m new pod
+### = 948m
+
+### If allocatable is ~940m → not enough → Pending.
+
+### Now here’s the subtle insight.
+
+### Capacity ≠ Allocatable.
+
+## Kubernetes subtracts CPU for:
+
+### kubelet
+
+### system daemons
+
+### networking
+
+### OS
+
+### So your 2-core node may only allow ~1 core for pods.
+
+### That’s why it feels smaller than expected.
+
+### So what are your options?
+
+## Option 1 — Reduce CPU request
+
+### Change to:
+
+### requests:
+###   cpu: "100m"
+
+
+That immediately frees scheduling space.
+
+## Option 2 — Increase node size (best long-term)
+
+### Upgrade to 4-core node.
+
+## Option 3 — Add another node
+
+### If using AKS/EKS/GKE, enable cluster autoscaler.
+
+### Because pod autoscaling without node autoscaling is half an elastic system.
+
+### Now the philosophical part.
+
+### You built HPA.
+
+### It tried to scale.
+
+### But infrastructure is finite.
+
+### Autoscaling is not magic.
+
+### It’s mathematics constrained by physics.
+
+### Right now your cluster is like a growing city with only one power plant.
+
+### If demand increases, lights flicker.
+
+### You don’t need more clever YAML.
+
+### You need more compute.
+
+### Run this command next and paste the Allocatable section:
+```
+kubectl describe node <node-name>
+```
+
+### That will confirm the exact limit your scheduler is working with.
+
+### And then we can tune it properly instead of fighting invisible ceilings.
