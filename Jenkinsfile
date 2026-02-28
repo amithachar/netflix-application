@@ -61,7 +61,7 @@ pipeline {
                   --overwrite-existing
 
                 kubectl set image deployment/ott-app \
-                  ott-app=$ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+                  ott-app=${ACR_NAME}.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
 
                 kubectl rollout status deployment/ott-app
                 """
