@@ -68,6 +68,7 @@ stage('Deploy to AKS') {
 
         kubectl rollout status deployment/ott-app
         """
-        }
     }
+  }
 }
+
