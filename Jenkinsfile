@@ -2,25 +2,12 @@ pipeline {
     agent any
 
     environment {
-        // Docker
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
-        IMAGE_NAME = "amithachar/ott-app"
-        DOCKER_BUILDKIT = "0"
-
-/*         // SonarQube
-        SONAR_TOKEN = credentials('SonarQube') */
-
-        // GCP
-        GCP_PROJECT_ID     = "project-3a9d1629-f247-457c-ae4"
-        GCP_PROJECT_NUMBER = "579466139442"
-        GCP_POOL_ID        = "jenkins-pool"
-        GCP_PROVIDER_ID    = "jenkins-provider"
-        GCP_SA_EMAIL       = "jenkins-terraform-sa@project-3a9d1629-f247-457c-ae4.iam.gserviceaccount.com"
-
-        CLUSTER_NAME = "cluster-1"
-        CLUSTER_ZONE = "us-central1-a"
-
-        PROVIDER_PATH = "projects/${GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${GCP_POOL_ID}/providers/${GCP_PROVIDER_ID}"
+        ACR_NAME = "myacrterraform1234"
+        RESOURCE_GROUP = "rg-aks-demo"
+        AKS_CLUSTER = "aks-demo-cluster"
+        TENANT_ID = "1a11d729-ee9e-44cc-a724-244076864120"
+        IMAGE_NAME = "ott-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -31,91 +18,64 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
                 sh '''
-                set -e
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
                 pip install -r requirements.txt
-                pip install pytest coverage
+                pip install pytest
+                pytest
                 '''
             }
         }
-
-        stage('Verify Sonar Tool') {
-            steps {
-                sh 'which sonar-scanner || echo "Scanner not found"'
-                sh 'sonar-scanner --version || echo "Version check failed"'
-            }
-        }
-
-
-        stage('SonarQube Analysis') {
-                steps {
-                    script {
-                        withSonarQubeEnv('sonar') {
-                            sh """
-                            sonar-scanner \
-                            -Dsonar.projectKey=sonarsss \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://34.41.234.160:9000 \
-                            -Dsonar.login=119327588824047c75ce4cc1c0f94b6a4b720497
-                            """
-                        }
-                    }
-                }
-            }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                set -e
-                docker build --pull --no-cache -t ${IMAGE_NAME}:${BUILD_NUMBER} .
-                '''
+                script {
+                    sh """
+                    docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG .
+                    """
+                }
             }
         }
 
-        stage('Trivy Scan') {
+        stage('Login to Azure') {
             steps {
-                sh '''
-                set -e
-                trivy image --severity CRITICAL --exit-code 1 ${IMAGE_NAME}:${BUILD_NUMBER}
-                '''
+                withCredentials([usernamePassword(credentialsId: 'jenkins-sp',
+                                                 usernameVariable: 'AZURE_CLIENT_ID',
+                                                 passwordVariable: 'AZURE_CLIENT_SECRET')]) {
+                    sh """
+                    az login --service-principal \
+                      --username $AZURE_CLIENT_ID \
+                      --password $AZURE_CLIENT_SECRET \
+                      --tenant 1a11d729-ee9e-44cc-a724-244076864120
+                    """
+                }
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push to ACR') {
             steps {
-                sh '''
-                set -e
-                echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
-                docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
-                docker push ${IMAGE_NAME}:latest
-                docker logout
-                '''
+                sh """
+                az acr login --name $ACR_NAME
+                docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+                """
             }
         }
 
-        stage('Deploy to GKE') {
+        stage('Deploy to AKS') {
             steps {
-                sh '''
-                set -e
-                gcloud config set project ${GCP_PROJECT_ID}
-                gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
+                sh """
+                az aks get-credentials \
+                  --resource-group $RESOURCE_GROUP \
+                  --name $AKS_CLUSTER \
+                  --overwrite-existing
 
-                kubectl set image deployment/ott-app ott-app=${IMAGE_NAME}:${BUILD_NUMBER}
+                kubectl set image deployment/ott-app \
+                  ott-app=$ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+
                 kubectl rollout status deployment/ott-app
-                '''
+                """
             }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
         }
     }
 }
