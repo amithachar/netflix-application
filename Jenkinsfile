@@ -18,16 +18,18 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-            sh '''
-            python3 -m pip install -r requirements.txt
-            python3 -m pip install pytest
-            python3 -m pytest
-            '''
+       stage('Test') {
+                steps {
+                    sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                    pip install pytest
+                    pytest
+                    '''
+                }
             }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
