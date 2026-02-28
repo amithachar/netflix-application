@@ -60,8 +60,8 @@ pipeline {
                   --name ${AKS_CLUSTER} \
                   --overwrite-existing
 
-                kubectl apply -f deployment.yml
-                kubectl apply -f service.yml
+                kubectl apply -f k8s/deployment.yml
+                kubectl apply -f k8s/service.yml
 
                 kubectl set image deployment/ott-app \
                   ott-app=${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG}
