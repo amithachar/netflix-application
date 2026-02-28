@@ -52,20 +52,22 @@ pipeline {
             }
         }
 
-        stage('Deploy to AKS') {
-            steps {
-                sh """
-                az aks get-credentials \
-                  --resource-group $RESOURCE_GROUP \
-                  --name $AKS_CLUSTER \
-                  --overwrite-existing
+stage('Deploy to AKS') {
+    steps {
+        sh """
+        az aks get-credentials \
+          --resource-group $RESOURCE_GROUP \
+          --name $AKS_CLUSTER \
+          --overwrite-existing
 
-                kubectl set image deployment/ott-app \
-                  ott-app=${ACR_NAME}.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+        kubectl apply -f deployment.yml
+        kubectl apply -f service.yml
 
-                kubectl rollout status deployment/ott-app
-                """
-            }
+        kubectl set image deployment/ott-app \
+          ott-app=${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG}
+
+        kubectl rollout status deployment/ott-app
+        """
         }
     }
 }
