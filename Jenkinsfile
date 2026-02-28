@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG .
+                    docker build -t ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:${IMAGE_TAG} .
                     """
                 }
             }
