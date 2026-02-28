@@ -20,11 +20,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
-                pip3 install -r requirements.txt
-                pip3 install pytest
-                pytest
-                '''
+            sh '''
+            python3 -m pip install -r requirements.txt
+            python3 -m pip install pytest
+            python3 -m pytest
+            '''
             }
         }
 
