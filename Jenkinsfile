@@ -47,7 +47,7 @@ pipeline {
             steps {
                 sh """
                 az acr login --name $ACR_NAME
-                docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+                docker push ${ACR_NAME}.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
                 """
             }
         }
