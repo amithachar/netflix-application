@@ -133,49 +133,51 @@ pipeline {
 
         stage('Deploy to AKS') {
 
-            steps {
+    steps {
 
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'azure-sp',
-                        usernameVariable: 'AZ_CLIENT_ID',
-                        passwordVariable: 'AZ_CLIENT_SECRET'
-                    )
-                ]) {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'azure-sp',
+                usernameVariable: 'AZ_CLIENT_ID',
+                passwordVariable: 'AZ_CLIENT_SECRET'
+            )
+        ]) {
 
-                    sh '''
-                    set -e
+            sh '''
+            set -e
 
-                    az login --service-principal \
-                    -u ${AZ_CLIENT_ID} \
-                    -p ${AZ_CLIENT_SECRET} \
-                    --tenant ${AZURE_TENANT_ID}
+            az login --service-principal \
+            -u ${AZ_CLIENT_ID} \
+            -p ${AZ_CLIENT_SECRET} \
+            --tenant ${AZURE_TENANT_ID}
 
-                    az account set \
-                    --subscription ${AZURE_SUBSCRIPTION_ID}
+            az account set \
+            --subscription ${AZURE_SUBSCRIPTION_ID}
 
-                    az aks get-credentials \
-                    --resource-group ${AKS_RESOURCE_GROUP} \
-                    --name ${AKS_CLUSTER_NAME} \
-                    --overwrite-existing
+            az aks get-credentials \
+            --resource-group ${AKS_RESOURCE_GROUP} \
+            --name ${AKS_CLUSTER_NAME} \
+            --overwrite-existing
 
-                    kubectl set image deployment/ott-app \
-                    ott-app=${ACR_LOGIN_SERVER}/${IMAGE_NAME}:${BUILD_NUMBER}
+            if kubectl get deployment ott-app >/dev/null 2>&1
+            then
+                echo "Deployment exists. Updating image..."
 
-                    kubectl rollout status deployment/ott-app
+                kubectl set image deployment/ott-app \
+                ott-app=${ACR_LOGIN_SERVER}/${IMAGE_NAME}:${BUILD_NUMBER}
 
-                    kubectl get pods
+                kubectl rollout status deployment/ott-app
 
-                    kubectl get svc
-                    '''
-                }
-            }
-        }
-    }
+            else
+                echo "Deployment not found. Creating deployment..."
 
-    post {
-        always {
-            cleanWs()
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+            fi
+
+            kubectl get pods
+            kubectl get svc
+            '''
         }
     }
 }
