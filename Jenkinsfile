@@ -131,7 +131,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to AKS') {
+       stage('Deploy to AKS') {
 
     steps {
 
@@ -181,3 +181,13 @@ pipeline {
         }
     }
 }
+
+} // closes stages
+
+post {
+    always {
+        cleanWs()
+    }
+}
+
+} // closes pipeline
