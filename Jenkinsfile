@@ -172,7 +172,7 @@ pipeline {
                 echo "Deployment not found. Creating deployment..."
 
                 kubectl apply -f k8s/deployment.yaml
-                kubectl apply -f service.yaml
+                kubectl apply -f k8s/service.yaml
             fi
 
             kubectl get pods
